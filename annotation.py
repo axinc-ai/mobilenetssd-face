@@ -68,9 +68,8 @@ def fddb(f_annotation,root_src_dir,category):
 			path=path[len(path)-1]
 			shutil.copyfile(image_path, DATASET_ROOT_PATH+"/open_images_"+MODE+"/train/"+path)
 			shutil.copyfile(image_path, DATASET_ROOT_PATH+"/open_images_"+MODE+"/test/"+path)
+			jpg_path=path
 
-			f_annotation.write(image_path+" ")
-			
 			line_n=int(lines[line_no])
 			line_no=line_no+1
 
@@ -100,6 +99,8 @@ def fddb(f_annotation,root_src_dir,category):
 				w=1.0*w/imagew
 				h=1.0*h/imageh
 
+				path=jpg_path.split(".")[0]
+
 				if w>0 and h>0 and x-w/2>=0 and y-h/2>=0 and x+w/2<=1 and y+h/2<=1:
 					f_annotation.write(path+",xclick,/m/0gxl3,1,"+str(xmin)+","+str(ymin)+","+str(xmax)+","+str(ymax)+",0,0,0,0,0,/m/0gxl3,Handgun\n")
 				else:
@@ -128,7 +129,6 @@ def medical_mask_dataset(f_annotation,root_src_dir):
 			print(path)
 
 			jpg_path = file_.replace(".txt",".jpg")
-			f_annotation.write(root_src_dir+jpg_path+" ")
 
 			image=cv2.imread(root_src_dir+jpg_path)
 			imagew=image.shape[1]
@@ -150,7 +150,8 @@ def medical_mask_dataset(f_annotation,root_src_dir):
 				xmax=xmax
 				ymax=ymax
 				category=int(data[0])
-				f_annotation.write(jpg_path.split(".")[0]+",xclick,/m/0gxl3,1,"+str(xmin)+","+str(ymin)+","+str(xmax)+","+str(ymax)+",0,0,0,0,0,/m/0gxl3,Handgun\n")
+				path=jpg_path.split(".")[0]
+				f_annotation.write(path+",xclick,/m/0gxl3,1,"+str(xmin)+","+str(ymin)+","+str(xmax)+","+str(ymax)+",0,0,0,0,0,/m/0gxl3,Handgun\n")
 
 if MODE=="fddb":
 	fddb(f_annotation,DATASET_ROOT_PATH+"fddb/",0)
