@@ -2,7 +2,21 @@
 
 ## Implement face detection using mobilenetssd
 
-### test
+### Create dataset
+
+[WIP] we must export to open image format
+
+labels
+
+```
+masked
+half_masked
+no_mask
+```
+
+## Tutorial using open dataset
+
+### test pre-trained model
 
 ```
 cd pytorch-ssd
@@ -11,19 +25,13 @@ wget -P models https://storage.googleapis.com/models-hao/open-images-model-label
 python3 run_ssd_example.py mb1-ssd models/gun_model_2.21.pth models/open-images-model-labels.txt gun.jpg
 ```
 
-```
-masked
-half_masked
-no_mask
-```
-
-### download test data
+### download training data
 
 ```
-python3 open_images_downloader.py --root ~/data/open_images --class_names "Handgun,Shotgun" --num_workers 1
+python3 open_images_downloader.py --root /Volumes/ST5/dataset/open_images --class_names "Handgun,Shotgun" --num_workers 1
 ```
 
-train-annotations-bbox.csv
+Format of train-annotations-bbox.csv
 
 ```
 ImageID,Source,LabelName,Confidence,XMin,XMax,YMin,YMax,IsOccluded,IsTruncated,IsGroupOf,IsDepiction,IsInside,id,ClassName
