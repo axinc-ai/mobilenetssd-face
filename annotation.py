@@ -1,4 +1,4 @@
-#Generate annotation data for yolov3
+#Generate annotation data for mobilenetssd (openimages)
 
 from scipy import io as spio
 from datetime import datetime
@@ -10,6 +10,7 @@ import shutil
 import sys
 import glob
 import cv2
+import shutil
 
 if len(sys.argv)!=3:
 	print("python annotation.py [fddb/medical-mask-dataset/mixed] [dataset folder path]")
@@ -26,8 +27,14 @@ if(not os.path.exists(DATASET_ROOT_PATH)):
 	print("folder not found "+DATASET_ROOT_PATH)
 	sys.exit(1)
 
-annotation_path="./train_"+MODE+".txt"
+if(not os.path.exists(DATASET_ROOT_PATH+"/open_images_"+MODE+"/train")):
+	os.mkdir(DATASET_ROOT_PATH+"/open_images_"+MODE+"/train")
+if(not os.path.exists(DATASET_ROOT_PATH+"/open_images_"+MODE+"/test")):
+	os.mkdir(DATASET_ROOT_PATH+"/open_images_"+MODE+"/test")
+
+annotation_path=DATASET_ROOT_PATH+"/open_images_"+MODE+"/sub-train-annotations-bbox.csv"
 f_annotation=open(annotation_path,mode="w")
+f_annotation.write("ImageID,Source,LabelName,Confidence,XMin,XMax,YMin,YMax,IsOccluded,IsTruncated,IsGroupOf,IsDepiction,IsInside,id,ClassName\n")
 
 def fddb(f_annotation,root_src_dir,category):
 	if(not os.path.exists(root_src_dir)):
@@ -57,6 +64,11 @@ def fddb(f_annotation,root_src_dir,category):
 			imagew=image.shape[1]
 			imageh=image.shape[0]
 
+			path=image_path.split("/")
+			path=path[len(path)-1]
+			shutil.copyfile(image_path, DATASET_ROOT_PATH+"/open_images_"+MODE+"/train/"+path)
+			shutil.copyfile(image_path, DATASET_ROOT_PATH+"/open_images_"+MODE+"/test/"+path)
+
 			f_annotation.write(image_path+" ")
 			
 			line_n=int(lines[line_no])
@@ -78,10 +90,10 @@ def fddb(f_annotation,root_src_dir,category):
 				w=minor_axis_radius*2
 				h=major_axis_radius*2
 
-				xmin=int(x-w/2)
-				ymin=int(y-h/2)
-				xmax=int(x+w/2)
-				ymax=int(y+h/2)
+				xmin=(x-w/2)/imagew
+				ymin=(y-h/2)/imageh
+				xmax=(x+w/2)/imagew
+				ymax=(y+h/2)/imageh
 
 				x=1.0*x/imagew
 				y=1.0*y/imageh
@@ -89,12 +101,10 @@ def fddb(f_annotation,root_src_dir,category):
 				h=1.0*h/imageh
 
 				if w>0 and h>0 and x-w/2>=0 and y-h/2>=0 and x+w/2<=1 and y+h/2<=1:
-					f_annotation.write(""+str(xmin)+","+str(ymin)+","+str(xmax)+","+str(ymax)+","+str(category)+" ")
+					f_annotation.write(path+",xclick,/m/0gxl3,1,"+str(xmin)+","+str(ymin)+","+str(xmax)+","+str(ymax)+",0,0,0,0,0,/m/0gxl3,Handgun\n")
 				else:
 					print("Invalid position removed "+str(x)+" "+str(y)+" "+str(w)+" "+str(h))
 			
-			f_annotation.write("\n")
-
 def medical_mask_dataset(f_annotation,root_src_dir):
 	if(not os.path.exists(root_src_dir)):
 		print("folder not found "+root_src_dir)
@@ -124,6 +134,9 @@ def medical_mask_dataset(f_annotation,root_src_dir):
 			imagew=image.shape[1]
 			imageh=image.shape[0]
 
+			shutil.copyfile(root_src_dir+jpg_path, DATASET_ROOT_PATH+"/open_images_"+MODE+"/train/"+jpg_path)
+			shutil.copyfile(root_src_dir+jpg_path, DATASET_ROOT_PATH+"/open_images_"+MODE+"/test/"+jpg_path)
+
 			for line in lines:
 				if line=="\n":
 					continue
@@ -132,13 +145,12 @@ def medical_mask_dataset(f_annotation,root_src_dir):
 				ymin=float(data[2])-float(data[4])/2
 				xmax=xmin+float(data[3])
 				ymax=ymin+float(data[4])
-				xmin=int(xmin*imagew)
-				ymin=int(ymin*imageh)
-				xmax=int(xmax*imagew)
-				ymax=int(ymax*imageh)
+				xmin=xmin
+				ymin=ymin
+				xmax=xmax
+				ymax=ymax
 				category=int(data[0])
-				f_annotation.write(""+str(xmin)+","+str(ymin)+","+str(xmax)+","+str(ymax)+","+str(category)+" ")
-			f_annotation.write("\n")
+				f_annotation.write(jpg_path.split(".")[0]+",xclick,/m/0gxl3,1,"+str(xmin)+","+str(ymin)+","+str(xmax)+","+str(ymax)+",0,0,0,0,0,/m/0gxl3,Handgun\n")
 
 if MODE=="fddb":
 	fddb(f_annotation,DATASET_ROOT_PATH+"fddb/",0)
@@ -149,3 +161,5 @@ if MODE=="mixed":
 	medical_mask_dataset(f_annotation,DATASET_ROOT_PATH+"medical-mask-dataset/")
 
 f_annotation.close()
+
+shutil.copyfile(DATASET_ROOT_PATH+"/open_images_"+MODE+"/sub-train-annotations-bbox.csv",DATASET_ROOT_PATH+"/open_images_"+MODE+"/sub-test-annotations-bbox.csv")

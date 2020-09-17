@@ -4,7 +4,16 @@
 
 ### Create dataset
 
-[WIP] we must export to open image format
+```
+python3 annotation.py fddb /Volumes/ST5/dataset/
+```
+
+```
+sub-test-annotations-bbox.csv
+sub-train-annotations-bbox.csv
+train/images.jpg
+test/images.jpg
+```
 
 labels
 
@@ -42,7 +51,8 @@ c220bdb28a6c6506,xclick,/m/0gxl3,1,0.503268,0.75,0.627451,0.960784,0,0,0,0,0,/m/
 
 ```
 wget -P models https://storage.googleapis.com/models-hao/mobilenet-v1-ssd-mp-0_675.pth
-python3 train_ssd.py --dataset_type open_images --datasets ~/data/open_images --net mb1-ssd --pretrained_ssd models/mobilenet-v1-ssd-mp-0_675.pth --scheduler cosine --lr 0.01 --t_max 100 --validation_epochs 5 --num_epochs 100 --base_net_lr 0.001  --batch_size 5
+python3 train_ssd.py --dataset_type open_images --datasets /Volumes/ST5/dataset/open_images --net mb1-ssd --pretrained_ssd models/mobilenet-v1-ssd-mp-0_675.pth --scheduler cosine --lr 0.01 --t_max 100 --validation_epochs 5 --num_epochs 100 --base_net_lr 0.001  --batch_size 5
+python3 train_ssd.py --dataset_type open_images --datasets /Volumes/ST5/dataset/open_images_fddb --net mb1-ssd --pretrained_ssd models/mobilenet-v1-ssd-mp-0_675.pth --scheduler cosine --lr 0.01 --t_max 100 --validation_epochs 5 --num_epochs 100 --base_net_lr 0.001  --batch_size 5
 ```
 
 ### test
