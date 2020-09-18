@@ -1,12 +1,23 @@
 # mobilenetssd-face
 
+## Environment
+
+Pytorch 1.0
+
+Windows is not working
+https://discuss.pytorch.org/t/cant-pickle-local-object-dataloader-init-locals-lambda/31857/8
+
 ## Implement face detection using mobilenetssd
 
 ### Create dataset
 
+Download fddb model and extract to each folder.
+
 ```
 python3 annotation.py fddb /Volumes/ST5/dataset/
 ```
+
+Output is open-image-dataset format.
 
 ```
 sub-test-annotations-bbox.csv
@@ -15,15 +26,28 @@ train/images.jpg
 test/images.jpg
 ```
 
-labels
+### Train
+
+Download pre-trained model
 
 ```
-masked
-half_masked
-no_mask
+cd pytorch-ssd
+
+wget -P models https://storage.googleapis.com/models-hao/mobilenet-v1-ssd-mp-0_675.pth
+wget -P models https://storage.googleapis.com/models-hao/mb2-ssd-lite-mp-0_686.pth
 ```
 
-## Tutorial using open dataset
+Train
+
+```
+cd pytorch-ssd
+
+python3 train_ssd.py --dataset_type open_images --datasets /Volumes/ST5/dataset/open_images_fddb --net mb1-ssd --pretrained_ssd models/mobilenet-v1-ssd-mp-0_675.pth --scheduler cosine --lr 0.001 --t_max 100 --validation_epochs 5 --num_epochs 100 --base_net_lr 0.001  --batch_size 5
+
+python3 train_ssd.py --dataset_type open_images --datasets /Volumes/ST5/dataset/open_images_fddb --net mb2-ssd-lite --pretrained_ssd models/mb2-ssd-lite-mp-0_686.pth --scheduler cosine --lr 0.001 --t_max 100 --validation_epochs 5 --num_epochs 100 --base_net_lr 0.001  --batch_size 5
+```
+
+## Official tutorial using open image dataset
 
 ### test pre-trained model
 
@@ -52,13 +76,12 @@ c220bdb28a6c6506,xclick,/m/0gxl3,1,0.503268,0.75,0.627451,0.960784,0,0,0,0,0,/m/
 ```
 wget -P models https://storage.googleapis.com/models-hao/mobilenet-v1-ssd-mp-0_675.pth
 python3 train_ssd.py --dataset_type open_images --datasets /Volumes/ST5/dataset/open_images --net mb1-ssd --pretrained_ssd models/mobilenet-v1-ssd-mp-0_675.pth --scheduler cosine --lr 0.01 --t_max 100 --validation_epochs 5 --num_epochs 100 --base_net_lr 0.001  --batch_size 5
-python3 train_ssd.py --dataset_type open_images --datasets /Volumes/ST5/dataset/open_images_fddb --net mb1-ssd --pretrained_ssd models/mobilenet-v1-ssd-mp-0_675.pth --scheduler cosine --lr 0.01 --t_max 100 --validation_epochs 5 --num_epochs 100 --base_net_lr 0.001  --batch_size 5
 ```
 
 ### test
 
 ```
-python3 run_ssd_example.py mb1-ssd models/mobilenet-v1-ssd-Epoch-99-Loss-2.2184619531035423.pth models/open-images-model-labels.txt ~/Downloads/gun.JPG
+python3 run_ssd_example.py mb1-ssd models/mb1-ssd-Epoch-5-Loss-nan.pth models/open-images-model-labels.txt img_2.jpg
 ```
 
 
