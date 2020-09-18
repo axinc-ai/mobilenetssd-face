@@ -27,6 +27,8 @@ if(not os.path.exists(DATASET_ROOT_PATH)):
 	print("folder not found "+DATASET_ROOT_PATH)
 	sys.exit(1)
 
+if(not os.path.exists(DATASET_ROOT_PATH+"/open_images_"+MODE)):
+	os.mkdir(DATASET_ROOT_PATH+"/open_images_"+MODE)
 if(not os.path.exists(DATASET_ROOT_PATH+"/open_images_"+MODE+"/train")):
 	os.mkdir(DATASET_ROOT_PATH+"/open_images_"+MODE+"/train")
 if(not os.path.exists(DATASET_ROOT_PATH+"/open_images_"+MODE+"/test")):
@@ -36,7 +38,10 @@ annotation_path=DATASET_ROOT_PATH+"/open_images_"+MODE+"/sub-train-annotations-b
 f_annotation=open(annotation_path,mode="w")
 f_annotation.write("ImageID,Source,LabelName,Confidence,XMin,XMax,YMin,YMax,IsOccluded,IsTruncated,IsGroupOf,IsDepiction,IsInside,id,ClassName\n")
 
-def fddb(f_annotation,root_src_dir,category):
+NO_MASK="0_no_mask"
+MASK="1_mask"
+
+def fddb(f_annotation,root_src_dir):
 	if(not os.path.exists(root_src_dir)):
 		print("folder not found "+root_src_dir)
 		sys.exit(1)
@@ -100,9 +105,10 @@ def fddb(f_annotation,root_src_dir,category):
 				h=1.0*h/imageh
 
 				path=jpg_path.split(".")[0]
+				label=NO_MASK
 
 				if w>0 and h>0 and x-w/2>=0 and y-h/2>=0 and x+w/2<=1 and y+h/2<=1:
-					f_annotation.write(path+",xclick,/m/0gxl3,1,"+str(xmin)+","+str(ymin)+","+str(xmax)+","+str(ymax)+",0,0,0,0,0,/m/0gxl3,Handgun\n")
+					f_annotation.write(path+",xclick,/m/0gxl3,1,"+str(xmin)+","+str(xmax)+","+str(ymin)+","+str(ymax)+",0,0,0,0,0,/m/0gxl3,"+label+"\n")
 				else:
 					print("Invalid position removed "+str(x)+" "+str(y)+" "+str(w)+" "+str(h))
 			
@@ -150,15 +156,19 @@ def medical_mask_dataset(f_annotation,root_src_dir):
 				xmax=xmax
 				ymax=ymax
 				category=int(data[0])
+				if category==0:
+					label=MASK
+				else:
+					label=NO_MASK
 				path=jpg_path.split(".")[0]
-				f_annotation.write(path+",xclick,/m/0gxl3,1,"+str(xmin)+","+str(ymin)+","+str(xmax)+","+str(ymax)+",0,0,0,0,0,/m/0gxl3,Handgun\n")
+				f_annotation.write(path+",xclick,/m/0gxl3,1,"+str(xmin)+","+str(xmax)+","+str(ymin)+","+str(ymax)+",0,0,0,0,0,/m/0gxl3,"+label+"\n")
 
 if MODE=="fddb":
-	fddb(f_annotation,DATASET_ROOT_PATH+"fddb/",0)
+	fddb(f_annotation,DATASET_ROOT_PATH+"fddb/")
 if MODE=="medical-mask-dataset":
 	medical_mask_dataset(f_annotation,DATASET_ROOT_PATH+"medical-mask-dataset/")
 if MODE=="mixed":
-	fddb(f_annotation,DATASET_ROOT_PATH+"fddb/",2)
+	fddb(f_annotation,DATASET_ROOT_PATH+"fddb/")
 	medical_mask_dataset(f_annotation,DATASET_ROOT_PATH+"medical-mask-dataset/")
 
 f_annotation.close()
