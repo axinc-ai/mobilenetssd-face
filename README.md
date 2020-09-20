@@ -53,6 +53,29 @@ python3 train_ssd.py --dataset_type open_images --datasets /Volumes/ST5/dataset/
 python3 train_ssd.py --dataset_type open_images --datasets /Volumes/ST5/dataset/open_images_mixed --net mb2-ssd-lite --pretrained_ssd models/mb2-ssd-lite-mp-0_686.pth --scheduler cosine --lr 0.001 --t_max 100 --validation_epochs 5 --num_epochs 100 --base_net_lr 0.001  --batch_size 5
 ```
 
+### test
+
+```
+cd pytorch-ssd
+
+python3 run_ssd_example.py mb2-ssd-lite models/mb2-ssd-lite-Epoch-80-Loss-2.4882763324521524.pth models/open-images-model-labels.txt ../input.jpg
+```
+
+### convert to onnx
+
+Change convert_to_caffe2_models.py to use opset_version=10.
+
+```
+torch.onnx.export(net, dummy_input, model_path, verbose=False, output_names=['scores', 'boxes'], opset_version=10)
+```
+
+```
+cd pytorch-ssd
+
+python3 convert_to_caffe2_models.py mb2-ssd-lite models/mb2-ssd-lite-Epoch-80-Loss-2.4882763324521524.pth models/open-images-model-labels.txt
+```
+
+
 ## Official tutorial using open image dataset
 
 ### test pre-trained model
