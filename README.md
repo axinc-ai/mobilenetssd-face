@@ -1,8 +1,8 @@
 # mobilenetssd-face
 
-## Environment
+## Requirements
 
-Pytorch 1.0
+- Pytorch (Linux or Mac)
 
 Windows is not working
 https://discuss.pytorch.org/t/cant-pickle-local-object-dataloader-init-locals-lambda/31857/8
